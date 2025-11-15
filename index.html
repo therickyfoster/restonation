@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🌍 Global Fruit Tree Restoration Autopilot v3.0</title>
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    :root {
+      --primary: #2ee8b2;
+      --primary-dark: #1a9d7a;
+      --accent: #00ffcc;
+      --bg-dark: #031014;
+      --bg-light: #0b1f25;
+      --text: #eefaf1;
+      --text-dim: #a8f5e0;
+      --panel-bg: rgba(255, 255, 255, 0.06);
+      --panel-border: rgba(46, 232, 178, 0.2);
+    }
+
+    /* THEME VARIATIONS */
+    body.theme-forest {
+      --primary: #4ade80;
+      --primary-dark: #22c55e;
+      --accent: #86efac;
+      --bg-dark: #0a1810;
+      --bg-light: #1a2e1a;
+    }
+
+    body.theme-ocean {
+      --primary: #3b82f6;
+      --primary-dark: #2563eb;
+      --accent: #60a5fa;
+      --bg-dark: #0c1420;
+      --bg-light: #1e293b;
+    }
+
+    body.theme-desert {
+      --primary: #f59e0b;
+      --primary-dark: #d97706;
+      --accent: #fbbf24;
+      --bg-dark: #1c1410;
+      --bg-light: #2d1e10;
+    }
+
+    body.theme-sunset {
+      --primary: #ec4899;
+      --primary-dark: #db2777;
+      --accent: #f472b6;
+      --bg-dark: #1a0f14;
+      --bg-light: #2d1a25;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(-20px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    @keyframes glow {
+      0%, 100% { box-shadow: 0 0 20px var(--primary); }
+      50% { box-shadow: 0 0 40px var(--primary), 0 0 60px var(--primary); }
+    }
+
+    body {
+      background: linear-gradient(135deg, var(--bg-dark), var(--bg-light), var(--bg-dark));
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
+      color: var(--text);
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* ANIMATED BACKGROUND PARTICLES */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-image: 
+        radial-gradient(circle at 20% 50%, var(--primary) 1px, transparent 1px),
+        radial-gradient(circle at 80% 80%, var(--accent) 1px, transparent 1px),
+        radial-gradient(circle at 40% 20%, var(--primary-dark) 1px, transparent 1px);
+      background-size: 100px 100px, 150px 150px, 80px 80px;
+      opacity: 0.1;
+      animation: float 20s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    /* THEME SELECTOR */
+    .theme-selector {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      display: flex;
+      gap: 0.5rem;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 0.5rem;
+      border-radius: 50px;
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--panel-border);
+    }
+
+    .theme-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .theme-btn:hover {
+      transform: scale(1.1);
+      border-color: white;
+    }
+
+    .theme-btn.active {
+      border-color: white;
+      box-shadow: 0 0 20px currentColor;
+    }
+
+    .theme-btn::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.9);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .theme-btn:hover::after {
+      opacity: 1;
+    }
+
+    .theme-default { background: linear-gradient(135deg, #2ee8b2, #00ffcc); }
+    .theme-forest-btn { background: linear-gradient(135deg, #4ade80, #86efac); }
+    .theme-ocean-btn { background: linear-gradient(135deg, #3b82f6, #60a5fa); }
+    .theme-desert-btn { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+    .theme-sunset-btn { background: linear-gradient(135deg, #ec4899, #f472b6); }
+
+    header { 
+      text-align: center; 
+      padding: 3rem 1rem 2rem; 
+      border-bottom: 2px solid var(--panel-border);
+      background: linear-gradient(180deg, rgba(0,0,0,0.4), transparent);
+      position: relative;
+      animation: slideIn 0.8s ease-out;
+    }
+
+    header::before {
+      content: '🌍';
+      position: absolute;
+      font-size: 8rem;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      opacity: 0.1;
+      animation: float 6s ease-in-out infinite;
+    }
+    
+    h1 {
+      font-size: 2.5rem; 
+      margin: 0 0 0.5rem 0;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: glow 3s ease-in-out infinite;
+      position: relative;
+    }
+    
+    h2 {
+      font-weight: 400; 
+      opacity: 0.9; 
+      margin: 0;
+      font-size: 1.1rem;
+      color: var(--text-dim);
+    }
+    
+    .grid { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); 
+      gap: 2rem; 
+      padding: 2rem 1rem;
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+    
+    .panel {
+      background: var(--panel-bg);
+      border-radius: 16px; 
+      padding: 2rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      border: 2px solid var(--panel-border);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+      animation: slideIn 0.6s ease-out backwards;
+    }
+
+    .panel:nth-child(1) { animation-delay: 0.1s; }
+    .panel:nth-child(2) { animation-delay: 0.2s; }
+    .panel:nth-child(3) { animation-delay: 0.3s; }
+    .panel:nth-child(4) { animation-delay: 0.4s; }
+    .panel:nth-child(5) { animation-delay: 0.5s; }
+    .panel:nth-child(6) { animation-delay: 0.6s; }
+
+    .panel::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), var(--accent), var(--primary));
+      background-size: 200% 100%;
+      animation: gradientShift 3s linear infinite;
+    }
+    
+    .panel:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5), 0 0 40px var(--primary);
+      border-color: var(--primary);
+    }
+    
+    /* AI PATH BADGE */
+    .panel::after {
+      content: attr(data-ai-path);
+      position: absolute;
+      top: -12px;
+      right: 20px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #000;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 4px 12px var(--primary);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    
+    .panel h3 {
+      margin: 0 0 0.8rem 0;
+      font-size: 1.5rem;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .panel h3::before {
+      font-size: 1.8rem;
+    }
+    
+    .panel p {
+      margin: 0 0 1.2rem 0;
+      opacity: 0.9;
+      font-size: 0.95rem;
+      color: var(--text-dim);
+    }
+    
+    .ai-descriptor {
+      background: linear-gradient(135deg, rgba(46, 232, 178, 0.1), rgba(46, 232, 178, 0.05));
+      border-left: 4px solid var(--primary);
+      padding: 1rem;
+      margin: 1.2rem 0;
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+      border-radius: 8px;
+      color: var(--text-dim);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .ai-descriptor::before {
+      content: '⚡';
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 2rem;
+      opacity: 0.2;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    
+    .ai-descriptor-title {
+      color: var(--primary);
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+      display: block;
+      font-size: 0.9rem;
+    }
+    
+    button, select, input {
+      width: 100%; 
+      margin: 0.6rem 0; 
+      padding: 0.9rem; 
+      border-radius: 10px; 
+      border: none;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+    
+    button {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #000; 
+      font-weight: bold;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    button::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+
+    button:hover::before {
+      width: 300px;
+      height: 300px;
+    }
+    
+    button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px var(--primary);
+    }
+    
+    button:active {
+      transform: translateY(0);
+    }
+    
+    select, input {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text);
+      border: 2px solid var(--panel-border);
+      backdrop-filter: blur(10px);
+    }
+    
+    select:focus, input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(46, 232, 178, 0.2);
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      margin-top: 0.8rem;
+      font-size: 0.9rem;
+      opacity: 0.9;
+      font-weight: 500;
+      color: var(--primary);
+    }
+    
+    pre {
+      white-space: pre-wrap;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 1.2rem;
+      border-radius: 10px;
+      border: 1px solid var(--panel-border);
+      font-size: 0.85rem;
+      line-height: 1.6;
+      overflow-x: auto;
+      max-height: 400px;
+      overflow-y: auto;
+      box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5);
+    }
+
+    pre::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    pre::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 10px;
+    }
+
+    pre::-webkit-scrollbar-thumb {
+      background: var(--primary);
+      border-radius: 10px;
+    }
+    
+    footer {
+      text-align: center; 
+      opacity: 0.7; 
+      padding: 3rem 1rem;
+      border-top: 2px solid var(--panel-border);
+      font-size: 0.95rem;
+      background: linear-gradient(0deg, rgba(0,0,0,0.4), transparent);
+    }
+
+    footer strong {
+      color: var(--primary);
+    }
+
+    /* LOADING ANIMATION */
+    @keyframes dots {
+      0%, 20% { content: '.'; }
+      40% { content: '..'; }
+      60%, 100% { content: '...'; }
+    }
+
+    .loading::after {
+      content: '';
+      animation: dots 1.5s infinite;
+    }
+    
+    @media (max-width: 768px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+      h1 {
+        font-size: 1.8rem;
+      }
+      .theme-selector {
+        top: 10px;
+        right: 10px;
+      }
+    }
+
+    /* SPECIES MODULE SPECIFIC */
+    #speciesPanel h3::before { content: '🌿'; }
+    #calcPanel h3::before { content: '📊'; }
+    #translationPanel h3::before { content: '🌐'; }
+    #vulnerabilityPanel h3::before { content: '🛡️'; }
+    #policyPanel h3::before { content: '📋'; }
+    #vizPanel h3::before { content: '🗺️'; }
+  </style>
+</head>
+
+<body>
+
+<!-- THEME SELECTOR -->
+<div class="theme-selector">
+  <button class="theme-btn theme-default active" onclick="setTheme('default')" data-tooltip="Cyan"></button>
+  <button class="theme-btn theme-forest-btn" onclick="setTheme('forest')" data-tooltip="Forest"></button>
+  <button class="theme-btn theme-ocean-btn" onclick="setTheme('ocean')" data-tooltip="Ocean"></button>
+  <button class="theme-btn theme-desert-btn" onclick="setTheme('desert')" data-tooltip="Desert"></button>
+  <button class="theme-btn theme-sunset-btn" onclick="setTheme('sunset')" data-tooltip="Sunset"></button>
+</div>
+
+<header>
+  <h1>🌱 Global Fruit Tree Restoration Autopilot</h1>
+  <h2>AI-Assisted Ecosystem Planner • Expansion-Ready Architecture v3.0</h2>
+</header>
+
+<section class="grid">
+
+  <!-- SPECIES MODULE -->
+  <div class="panel" id="speciesPanel" data-ai-path="species_module">
+    <h3>Species & Symbiotic Selection</h3>
+    <p>Dynamic ecosystem species data with comprehensive botanical profiles.</p>
+    
+    <div class="ai-descriptor">
+      <span class="ai-descriptor-title">╭─ AI_DESCRIPTOR: species_module</span>
+      <strong>Expansion Targets:</strong><br>
+      • FAO GAEZ API integration<br>
+      • Trefle.io botanical database<br>
+      • GBIF species occurrence<br>
+      • Mycorrhizal network modeling<br>
+      • Companion planting matrix
+    </div>
+    
+    <label for="ecosystemSelect">🌍 Select Ecosystem Type:</label>
+    <select id="ecosystemSelect">
+      <option value="tropical">🌴 Tropical Agroforest</option>
+      <option value="temperate">🍎 Temperate Orchard</option>
+      <option value="dryland">🌵 Dryland Resilience Zone</option>
+      <option value="wetland">🌊 Wetland Fringe System</option>
+      <option value="mountain">⛰️ Mountain Terrace System</option>
+    </select>
+    <button onclick="loadSpecies()">🔍 Load Species Database</button>
+    <pre id="speciesOutput">Select an ecosystem and click Load...</pre>
+  </div>
+
+  <!-- SIMULATION CORE -->
+  <div class="panel" id="calcPanel" data-ai-path="simulation_core">
+    <h3>Planting Simulation Engine</h3>
+    <p>Compute restoration requirements with carbon and caloric projections.</p>
+    
+    <div class="ai-descriptor">
+      <span class="ai-descriptor-title">╭─ AI_DESCRIPTOR: simulation_core</span>
+      <strong>Enhancement Pathways:</strong><br>
+      • Yasso07/RothC carbon modeling<br>
+      • Economic cost-benefit analysis<br>
+      • Monte Carlo uncertainty ranges<br>
+      • Climate projection integration
+    </div>
+    
+    <label for="populationInput">👥 Target Population:</label>
+    <input type="number" id="populationInput" placeholder="e.g., 1000000" min="1" />
+    
+    <label for="yearsInput">📅 Restoration Timeline (years):</label>
+    <input type="number" id="yearsInput" placeholder="Recommended: 5-7 years" min="1" max="20" />
+    
+    <button onclick="calculatePlan()">⚡ Run Simulation</button>
+    <pre id="calcOutput">Enter parameters above...</pre>
+  </div>
+
+  <!-- TRANSLATION SUBSYSTEM -->
+  <div class="panel" id="translationPanel" data-ai-path="translation_subsystem">
+    <h3>AI Translation Engine</h3>
+    <p>Multilingual interface for global accessibility.</p>
+    
+    <div class="ai-descriptor">
+      <span class="ai-descriptor-title">╭─ AI_DESCRIPTOR: translation_subsystem</span>
+      <strong>Implementation Roadmap:</strong><br>
+      • LLM-based translation<br>
+      • NLLB-200 offline fallback<br>
+      • RTL layout engine<br>
+      • Cultural adaptation
+    </div>
+    
+    <label for="langSelect">🗣️ Target Language:</label>
+    <select id="langSelect">
+      <option value="en">🇬🇧 English</option>
+      <option value="fr">🇫🇷 Français</option>
+      <option value="es">🇪🇸 Español</option>
+      <option value="sw">🇰🇪 Kiswahili</option>
+      <option value="zh">🇨🇳 中文</option>
+      <option value="ar">🇸🇦 العربية</option>
+      <option value="pt">🇧🇷 Português</option>
+      <option value="hi">🇮🇳 हिन्दी</option>
+    </select>
+    <button onclick="translatePage()">🔄 Translate Interface</button>
+    <pre id="translateStatus">Current Language: EN (English)</pre>
+  </div>
+
+  <!-- VULNERABILITY HUD -->
+  <div class="panel" id="vulnerabilityPanel" data-ai-path="vulnerability_hud">
+    <h3>Ecosystem Vulnerability HUD</h3>
+    <p>Real-time environmental risk assessment and mitigation planning.</p>
+    
+    <div class="ai-descriptor">
+      <span class="ai-descriptor-title">╭─ AI_DESCRIPTOR: vulnerability_hud</span>
+      <strong>Data Integration:</strong><br>
+      • NASA MODIS NDVI<br>
+      • ESA Copernicus soil data<br>
+      • NOAA drought indices<br>
+      • WebGL visualization
+    </div>
+    
+    <label for="regionSelect">🌍 Analysis Region:</label>
+    <select id="regionSelect">
+      <option value="africa">🌍 Sub-Saharan Africa</option>
+      <option value="se-asia">🌏 Southeast Asia</option>
+      <option value="latin-america">🌎 Latin America</option>
+      <option value="middle-east">🏜️ Middle East & North Africa</option>
+      <option value="global">🌐 Global Overview</option>
+    </select>
+    
+    <button onclick="fetchVulnerability()">🔬 Scan Environment</button>
+    <pre id="vulnerabilityData">Click scan to analyze region...</pre>
+  </div>
+
+  <!-- POLICY INTERFACE -->
+  <div class="panel" id="policyPanel" data-ai-path="policy_interface">
+    <h3>Policy & Governance</h3>
+    <p>Regulatory compliance and community engagement tracking.</p>
+    
+    <div class="ai-descriptor">
+      <span class="ai-descriptor-title">╭─ AI_DESCRIPTOR: policy_interface</span>
+      <strong>Functional Modules:</strong><br>
+      • REDD+ compliance checker<br>
+      • SDG alignment reporting<br>
+      • Stakeholder mapping<br>
+      • Impact documentation
+    </div>
+    
+    <button onclick="loadPolicyData()">📑 Load Governance Framework</button>
+    <button onclick="generateReport()">📊 Generate Impact Report</button>
+    <pre id="policyOutput">Policy analysis tools ready...</pre>
+  </div>
+
+  <!-- VISUALIZATION HUD -->
+  <div class="panel" id="vizPanel" data-ai-path="hud_visualization">
+    <h3>Geospatial Mission Control</h3>
+    <p>Interactive mapping and progress visualization.</p>
+    
+    <div class="ai-descriptor">
+      <span class="ai-descriptor-title">╭─ AI_DESCRIPTOR: hud_visualization</span>
+      <strong>Rendering Stack:</strong><br>
+      • Leaflet.js mapping<br>
+      • D3.js data overlays<br>
+      • Three.js 3D terrain<br>
+      • GeoJSON/KML export
+    </div>
+    
+    <button onclick="initializeMap()">🌍 Initialize Map View</button>
+    <button onclick="toggleLayers()">🔲 Toggle Data Layers</button>
+    <pre id="vizOutput">Map rendering engine standby...</pre>
+  </div>
+
+</section>
+
+<footer>
+  <strong>Attribution:</strong> Ricky Foster<br>
+  <em>From humanity's past fire to future frost</em><br>
+  <small style="opacity:0.7;">Version 3.0 • Multi-Theme AI-Expansion Architecture</small>
+</footer>
+
+<script>
+/* THEME MANAGEMENT */
+function setTheme(theme) {
+  document.body.className = theme !== 'default' ? `theme-${theme}` : '';
+  document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('active'));
+  event.target.classList.add('active');
+  localStorage.setItem('selectedTheme', theme);
+}
+
+// Load saved theme
+window.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem('selectedTheme') || 'default';
+  if (saved !== 'default') {
+    document.body.className = `theme-${saved}`;
+    document.querySelector(`.theme-${saved}-btn`)?.classList.add('active');
+    document.querySelector('.theme-default')?.classList.remove('active');
+  }
+});
+
+/* SPECIES DATABASE */
+const speciesDatabase = {
+  tropical: {
+    fruit: [
+      { name: "Mango", scientific: "Mangifera indica", yield: "50-150 kg/tree/year", maturity: "3-5 years", carbon: "28 kg CO₂/year", water: "High (900-2500mm)", soil: "pH 5.5-7.5, well-drained", pollinators: ["Flies", "Bees", "Wasps"], companions: ["Papaya", "Banana", "Legumes"], conflicts: ["Citrus (disease spread)"], mycorrhizae: "Ectomycorrhizal", nutritional: "Vitamin A, C, Fiber" },
+      { name: "Avocado", scientific: "Persea americana", yield: "60-200 kg/tree/year", maturity: "3-4 years", carbon: "22 kg CO₂/year", water: "Moderate (1000-1600mm)", soil: "pH 6-7, excellent drainage", pollinators: ["Bees", "Hoverflies"], companions: ["Banana", "Comfrey", "Clover"], conflicts: ["Black walnut (juglone toxicity)"], mycorrhizae: "Arbuscular", nutritional: "Healthy fats, Potassium, Vitamin E" },
+      { name: "Banana", scientific: "Musa spp.", yield: "15-40 kg/plant/year", maturity: "9-12 months", carbon: "12 kg CO₂/year", water: "High (1500-2500mm)", soil: "pH 5.5-7, deep loam", pollinators: ["Birds", "Bats", "Insects"], companions: ["Taro", "Sweet potato", "Cassava"], conflicts: ["None significant"], mycorrhizae: "Arbuscular", nutritional: "Potassium, Vitamin B6, Carbs" }
+    ],
+    support: [
+      { name: "Acacia (N-fixer)", scientific: "Acacia spp.", function: "Nitrogen fixation, mulch, shade", nitrogen: "50-200 kg N/ha/year", growth: "Fast (2-4m/year)", companions: ["All fruit trees"], notes: "Deep roots don't compete" },
+      { name: "Bamboo (Windbreak)", scientific: "Bambusa spp.", function: "Erosion control, construction", nitrogen: "Minimal", growth: "Very fast (10-20m/year)", companions: ["Edge plantings"], notes: "Requires containment" }
+    ],
+    symbiotic: { fungi: ["Glomus spp.", "Rhizophagus"], pollinators: ["Stingless bees", "Carpenter bees"], predators: ["Ladybugs", "Lacewings"], decomposers: ["Earthworms", "Millipedes"] }
+  },
+  temperate: {
+    fruit: [
+      { name: "Apple", scientific: "Malus domestica", yield: "80-200 kg/tree/year", maturity: "4-5 years", carbon: "25 kg CO₂/year", water: "Moderate (600-900mm)", soil: "pH 6-7, well-drained loam", pollinators: ["Honeybees", "Bumblebees", "Mason bees"], companions: ["Clover", "Comfrey", "Chives"], conflicts: ["Potatoes (blight)", "Grass"], mycorrhizae: "Ectomycorrhizal", nutritional: "Fiber, Vitamin C" },
+      { name: "Pear", scientific: "Pyrus communis", yield: "50-150 kg/tree/year", maturity: "4-6 years", carbon: "23 kg CO₂/year", water: "Moderate (600-900mm)", soil: "pH 6-7.5, deep soil", pollinators: ["Bees", "Flies"], companions: ["Clover", "Nasturtium"], conflicts: ["Fire blight susceptibility"], mycorrhizae: "Ectomycorrhizal", nutritional: "Fiber, Vitamin C, Copper" }
+    ],
+    support: [
+      { name: "Clover (N-fixer)", scientific: "Trifolium spp.", function: "Nitrogen fixation, ground cover", nitrogen: "100-150 kg N/ha/year", growth: "Low spreading", companions: ["All orchard trees"], notes: "Excellent living mulch" }
+    ],
+    symbiotic: { fungi: ["Laccaria", "Boletus", "Suillus"], pollinators: ["Mason bees", "Honeybees", "Bumblebees"], predators: ["Chickens", "Ground beetles"], decomposers: ["Earthworms", "Woodlice"] }
+  },
+  dryland: {
+    fruit: [
+      { name: "Date Palm", scientific: "Phoenix dactylifera", yield: "40-100 kg/tree/year", maturity: "4-8 years", carbon: "30 kg CO₂/year", water: "Low (100-400mm)", soil: "pH 7-8, saline tolerant", pollinators: ["Wind", "Hand pollination"], companions: ["Under-story crops", "Legumes"], conflicts: ["Requires space"], mycorrhizae: "Arbuscular", nutritional: "Natural sugars, Potassium" },
+      { name: "Moringa", scientific: "Moringa oleifera", yield: "Leaves: 20-40 kg, Pods: 30-50 kg", maturity: "8 months", carbon: "16 kg CO₂/year", water: "Very low (250-1000mm)", soil: "pH 5-9, highly adaptable", pollinators: ["Bees", "Moths"], companions: ["Most vegetables", "Grains"], conflicts: ["None"], mycorrhizae: "Arbuscular", nutritional: "Complete protein, Vitamins A, C" }
+    ],
+    support: [
+      { name: "Mesquite (N-fixer)", scientific: "Prosopis spp.", function: "Nitrogen fixation, fodder", nitrogen: "40-100 kg N/ha/year", growth: "Slow-moderate", companions: ["Desert crops"], notes: "Deep taproot, drought resistant" }
+    ],
+    symbiotic: { fungi: ["Desert truffles", "Xerophilic species"], pollinators: ["Native bees", "Beetles"], predators: ["Lizards", "Desert birds"], decomposers: ["Termites", "Desert beetles"] }
+  },
+  wetland: {
+    fruit: [
+      { name: "Breadfruit", scientific: "Artocarpus altilis", yield: "200-600 kg/tree/year", maturity: "3-5 years", carbon: "35 kg CO₂/year", water: "High (2000-3000mm)", soil: "pH 6-8, tolerates flooding", pollinators: ["Wind", "Bats"], companions: ["Taro", "Yam", "Banana"], conflicts: ["None"], mycorrhizae: "Arbuscular", nutritional: "Carbohydrates, Fiber, Vitamin C" }
+    ],
+    support: [
+      { name: "Mangrove", scientific: "Rhizophora spp.", function: "Coastal protection, nursery habitat", nitrogen: "Ecosystem services", growth: "Moderate", companions: ["Aquatic systems"], notes: "Critical for coastal resilience" }
+    ],
+    symbiotic: { fungi: ["Aquatic fungi", "Flood-tolerant mycorrhizae"], pollinators: ["Aquatic insects", "Birds"], predators: ["Fish", "Amphibians"], decomposers: ["Aquatic invertebrates"] }
+  },
+  mountain: {
+    fruit: [
+      { name: "Apple (Cold-hardy)", scientific: "Malus domestica", yield: "60-150 kg/tree/year", maturity: "4-6 years", carbon: "24 kg CO₂/year", water: "Moderate (500-800mm)", soil: "pH 6-7, cold tolerant", pollinators: ["Native bees", "Flies"], companions: ["Mountain herbs", "Clover"], conflicts: ["Late frost damage"], mycorrhizae: "Ectomycorrhizal", nutritional: "Fiber, Vitamin C" },
+      { name: "Walnut", scientific: "Juglans regia", yield: "30-60 kg/tree/year", maturity: "7-10 years", carbon: "40 kg CO₂/year", water: "Moderate (600-1000mm)", soil: "pH 6-7.5, deep soil", pollinators: ["Wind"], companions: ["Limited (juglone producer)"], conflicts: ["Most plants (allelopathy)"], mycorrhizae: "Ectomycorrhizal", nutritional: "Omega-3, Protein" }
+    ],
+    support: [
+      { name: "Alpine Clover", scientific: "Trifolium alpinum", function: "Nitrogen fixation, erosion control", nitrogen: "80-120 kg N/ha/year", growth: "Low mat-forming", companions: ["Mountain crops"], notes: "Cold hardy to -40°C" }
+    ],
+    symbiotic: { fungi: ["Bolete", "Chanterelle", "Alpine mycorrhizae"], pollinators: ["Alpine bees", "Butterflies"], predators: ["Mountain birds"], decomposers: ["Cold-adapted earthworms"] }
+  }
+};
+
+const compatibilityMatrix = {
+  "Mango": { high: ["Papaya", "Banana", "Acacia"], medium: ["Avocado", "Guava"], low: ["Citrus"] },
+  "Avocado": { high: ["Banana", "Comfrey", "Clover"], medium: ["Mango"], low: ["Walnut"] },
+  "Apple": { high: ["Clover", "Comfrey", "Chives"], medium: ["Pear"], low: ["Potato", "Grass"] }
+};
+
+const invasiveRiskDB = {
+  "Guava": { regions: ["Pacific Islands", "Australia"], risk: "HIGH", notes: "Aggressive seeder" },
+  "Bamboo": { regions: ["Most temperate zones"], risk: "MEDIUM", notes: "Requires containment" }
+};
+
+async function loadSpecies() {
+  const eco = document.getElementById("ecosystemSelect").value;
+  const data = speciesDatabase[eco];
+  
+  if (!data) {
+    document.getElementById("speciesOutput").innerText = "⚠️ Ecosystem data not found";
+    return;
+  }
+  
+  const output = document.getElementById("speciesOutput");
+  output.innerText = "🔄 Loading comprehensive species data...\n(Simulating API call)";
+  output.classList.add('loading');
+  
+  await new Promise(r => setTimeout(r, 1200));
+  output.classList.remove('loading');
+  
+  let result = `╔═══════════════════════════════════════════════════════════╗\n`;
+  result += `║  ECOSYSTEM: ${eco.toUpperCase().padEnd(48)} ║\n`;
+  result += `╚═══════════════════════════════════════════════════════════╝\n\n`;
+  
+  result += `━━━ 🍎 PRIMARY FRUIT SPECIES ━━━\n\n`;
+  data.fruit.forEach((s, i) => {
+    result += `[${i + 1}] ${s.name} (${s.scientific})\n`;
+    result += `    ├─ Yield: ${s.yield}\n`;
+    result += `    ├─ Maturity: ${s.maturity}\n`;
+    result += `    ├─ Carbon: ${s.carbon}\n`;
+    result += `    ├─ Water: ${s.water}\n`;
+    result += `    ├─ Soil: ${s.soil}\n`;
+    result += `    ├─ Mycorrhizae: ${s.mycorrhizae}\n`;
+    result += `    ├─ Pollinators: ${s.pollinators.join(', ')}\n`;
+    result += `    ├─ Companions: ${s.companions.join(', ')}\n`;
+    result += `    ├─ Conflicts: ${s.conflicts.join(', ')}\n`;
+    result += `    └─ Nutrition: ${s.nutritional}\n`;
+    
+    if (invasiveRiskDB[s.name]) {
+      const risk = invasiveRiskDB[s.name];
+      result += `    ⚠️  INVASIVE RISK: ${risk.risk} - ${risk.notes}\n`;
+    }
+    result += `\n`;
+  });
+  
+  result += `━━━ 🌳 SUPPORT SPECIES ━━━\n\n`;
+  data.support.forEach((s, i) => {
+    result += `[${i + 1}] ${s.name} (${s.scientific})\n`;
+    result += `    ├─ Function: ${s.function}\n`;
+    result += `    ├─ Nitrogen: ${s.nitrogen}\n`;
+    result += `    ├─ Growth: ${s.growth}\n`;
+    result += `    ├─ Companions: ${s.companions.join(', ')}\n`;
+    result += `    └─ Notes: ${s.notes}\n\n`;
+  });
+  
+  result += `━━━ 🔗 SYMBIOTIC WEB COMPONENTS ━━━\n\n`;
+  result += `🍄 Fungi: ${data.symbiotic.fungi.join(', ')}\n`;
+  result += `🐝 Pollinators: ${data.symbiotic.pollinators.join(', ')}\n`;
+  result += `🐞 Predators: ${data.symbiotic.predators.join(', ')}\n`;
+  result += `🪱 Decomposers: ${data.symbiotic.decomposers.join(', ')}\n\n`;
+  
+  if (compatibilityMatrix[data.fruit[0].name]) {
+    result += `━━━ 🤝 COMPANION PLANTING MATRIX ━━━\n\n`;
+    const compat = compatibilityMatrix[data.fruit[0].name];
+    result += `${data.fruit[0].name}:\n`;
+    result += `  ✓ Excellent: ${compat.high.join(', ')}\n`;
+    result += `  ○ Moderate: ${compat.medium.join(', ')}\n`;
+    result += `  ✗ Avoid: ${compat.low.join(', ')}\n\n`;
+  }
+  
+  const totalCarbon = data.fruit.reduce((sum, s) => sum + parseFloat(s.carbon) || 0, 0);
+  const avgMaturity = data.fruit.reduce((sum, s) => sum + parseFloat(s.maturity) || 0, 0) / data.fruit.length;
+  
+  result += `━━━ 📊 ECOSYSTEM SUMMARY ━━━\n\n`;
+  result += `Total Species: ${data.fruit.length} fruit + ${data.support.length} support\n`;
+  result += `Carbon Sequestration: ${totalCarbon.toFixed(1)} kg CO₂/year\n`;
+  result += `Average Maturity: ${avgMaturity.toFixed(1)} years\n`;
+  result += `Mycorrhizal Networks: ${data.symbiotic.fungi.length} species\n`;
+  result += `Pollinator Species: ${data.symbiotic.pollinators.length} types\n\n`;
+  result += `[AI_STATUS: Enhanced database v3.0 active]\n`;
+  result += `[NEXT: Integrate FAO GAEZ, Trefle.io, GBIF APIs]`;
+  
+  output.innerText = result;
+}
+
+/* SIMULATION CORE */
+function calculatePlan() {
+  const p = parseFloat(populationInput.value);
+  const y = parseFloat(yearsInput.value);
+  
+  if (!p || !y) {
+    calcOutput.innerText = "⚠️ Please enter both population and timeline values.";
+    return;
+  }
+  
+  const treesPerPerson = 19;
+  const totalTrees = p * treesPerPerson;
+  const annualPace = totalTrees / y;
+  const dailyPace = annualPace / 365;
+  const carbonPerTreePerYear = 21.77;
+  const totalCarbon = (totalTrees * carbonPerTreePerYear * y) / 1000;
+  const caloriesPerTreePerYear = 5000;
+  const totalCalories = (totalTrees * caloriesPerTreePerYear) / 1e9;
+  
+  let output = `╔═══ RESTORATION PLAN SIMULATION ═══╗\n\n`;
+  output += `📊 INPUT PARAMETERS:\n`;
+  output += `  Population: ${p.toLocaleString()}\n`;
+  output += `  Timeline: ${y} years\n`;
+  output += `  Trees/Person: ${treesPerPerson}\n\n`;
+  output += `🌱 PLANTING REQUIREMENTS:\n`;
+  output += `  Total Trees: ${totalTrees.toLocaleString()}\n`;
+  output += `  Annual Pace: ${Math.round(annualPace).toLocaleString()} trees/year\n`;
+  output += `  Daily Pace: ${Math.round(dailyPace).toLocaleString()} trees/day\n\n`;
+  output += `🌍 PROJECTED IMPACT (Year ${y}):\n`;
+  output += `  CO₂ Sequestered: ${totalCarbon.toLocaleString()} tons\n`;
+  output += `  Caloric Output: ${totalCalories.toFixed(2)} billion cal/year\n\n`;
+  output += `[AI_NOTE: Integrate Yasso07 carbon model & economic CBA]`;
+  
+  calcOutput.innerText = output;
+}
+
+/* TRANSLATION */
+const languageNames = {
+  en: "English", fr: "Français", es: "Español", sw: "Kiswahili",
+  zh: "中文", ar: "العربية", pt: "Português", hi: "हिन्दी"
+};
+
+async function translatePage() {
+  const lang = langSelect.value;
+  const langName = languageNames[lang];
+  
+  translateStatus.innerText = `🔄 Translating to ${langName}...`;
+  translateStatus.classList.add('loading');
+  
+  await new Promise(r => setTimeout(r, 1500));
+  translateStatus.classList.remove('loading');
+  
+  translateStatus.innerText = `✅ Interface Language: ${langName}\n\n`;
+  translateStatus.innerText += `[AI_NOTE: Implement via:\n`;
+  translateStatus.innerText += ` • OpenAI/Anthropic API\n`;
+  translateStatus.innerText += ` • NLLB-200 offline models\n`;
+  translateStatus.innerText += ` • IndexedDB caching]`;
+}
+
+/* VULNERABILITY */
+const vulnerabilityProfiles = {
+  africa: { region: "Sub-Saharan Africa", droughtRisk: "HIGH", ndviAnomaly: "-0.24", soilMoisture: "18% (critical)", recommendations: ["Deploy dryland species", "Water harvesting", "Drought-resistant cultivars"] },
+  "se-asia": { region: "Southeast Asia", droughtRisk: "MODERATE", ndviAnomaly: "+0.08", soilMoisture: "42% (adequate)", recommendations: ["Monitor deforestation", "Agroforestry buffers", "Biodiversity corridors"] },
+  "latin-america": { region: "Latin America", droughtRisk: "VARIABLE", ndviAnomaly: "-0.12", soilMoisture: "31% (moderate)", recommendations: ["Diversify species", "Establish riparian zones", "Community monitoring"] },
+  "middle-east": { region: "Middle East & North Africa", droughtRisk: "EXTREME", ndviAnomaly: "-0.38", soilMoisture: "9% (critical)", recommendations: ["Xerophytic species", "Drip irrigation", "Soil carbon restoration"] },
+  global: { region: "Global Overview", droughtRisk: "INCREASING", ndviAnomaly: "Variable", soilMoisture: "Declining", recommendations: ["Accelerate restoration", "Climate-adaptive species", "Enhanced monitoring"] }
+};
+
+async function fetchVulnerability() {
+  const region = document.getElementById("regionSelect").value;
+  
+  vulnerabilityData.innerText = "🔬 Scanning environmental data...";
+  vulnerabilityData.classList.add('loading');
+  
+  await new Promise(r => setTimeout(r, 2000));
+  vulnerabilityData.classList.remove('loading');
+  
+  const profile = vulnerabilityProfiles[region];
+  
+  let output = `╔═══ VULNERABILITY ASSESSMENT ═══╗\n\n`;
+  output += `📍 Region: ${profile.region}\n\n`;
+  output += `⚠️ RISK INDICATORS:\n`;
+  output += `  Drought Risk: ${profile.droughtRisk}\n`;
+  output += `  NDVI Anomaly: ${profile.ndviAnomaly}\n`;
+  output += `  Soil Moisture: ${profile.soilMoisture}\n\n`;
+  output += `💡 RECOMMENDED ACTIONS:\n`;
+  output += profile.recommendations.map(r => `  • ${r}`).join('\n');
+  output += `\n\n[AI_NOTE: Integrate NASA MODIS, ESA Copernicus APIs]`;
+  
+  vulnerabilityData.innerText = output;
+}
+
+/* POLICY */
+function loadPolicyData() {
+  policyOutput.innerText = "📑 Loading governance framework...";
+  policyOutput.classList.add('loading');
+  
+  setTimeout(() => {
+    policyOutput.classList.remove('loading');
+    let output = `╔═══ POLICY FRAMEWORK ANALYSIS ═══╗\n\n`;
+    output += `🏛️ REGULATORY COMPLIANCE:\n`;
+    output += `  ✓ REDD+ Guidelines: Compatible\n`;
+    output += `  ✓ CBD Aichi Targets: Aligned\n`;
+    output += `  ✓ Paris Agreement: Supportive\n`;
+    output += `  ⚠ Local Laws: Review required\n\n`;
+    output += `📊 SDG ALIGNMENT:\n`;
+    output += `  Goal 2 (Zero Hunger): Primary target\n`;
+    output += `  Goal 13 (Climate Action): Carbon sequestration\n`;
+    output += `  Goal 15 (Life on Land): Biodiversity\n\n`;
+    output += `👥 STAKEHOLDER MAPPING:\n`;
+    output += `  • Local communities: Consultation required\n`;
+    output += `  • Government agencies: 3 departments\n`;
+    output += `  • NGO partners: 7 organizations\n`;
+    output += `  • Private sector: Funding opportunities\n\n`;
+    output += `[AI_NOTE: Build compliance checker with live database]`;
+    policyOutput.innerText = output;
+  }, 1200);
+}
+
+function generateReport() {
+  policyOutput.innerText = "📊 Generating impact report...";
+  policyOutput.classList.add('loading');
+  
+  setTimeout(() => {
+    policyOutput.classList.remove('loading');
+    let output = `╔═══ IMPACT REPORT SUMMARY ═══╗\n\n`;
+    output += `📅 Report Period: Q4 2025\n\n`;
+    output += `🌱 RESTORATION METRICS:\n`;
+    output += `  Trees Planted: 2,450,000\n`;
+    output += `  Area Restored: 8,200 hectares\n`;
+    output += `  Survival Rate: 87%\n`;
+    output += `  Species Diversity: 34 varieties\n\n`;
+    output += `🌍 ENVIRONMENTAL IMPACT:\n`;
+    output += `  CO₂ Sequestered: 12,400 tons\n`;
+    output += `  Soil Carbon: +2.3%\n`;
+    output += `  Biodiversity Index: +18%\n\n`;
+    output += `👥 SOCIAL IMPACT:\n`;
+    output += `  Communities: 127\n`;
+    output += `  Jobs Created: 1,850\n`;
+    output += `  Food Security: +23%\n\n`;
+    output += `💰 ECONOMIC ANALYSIS:\n`;
+    output += `  Investment: $8.4M\n`;
+    output += `  Projected ROI (10yr): 340%\n`;
+    output += `  Carbon Credits: $680K\n\n`;
+    output += `[AI_NOTE: Auto-generate with customizable templates]`;
+    policyOutput.innerText = output;
+  }, 1800);
+}
+
+/* VISUALIZATION */
+let mapInitialized = false;
+let layersVisible = false;
+
+function initializeMap() {
+  vizOutput.innerText = "🌍 Initializing map view...";
+  vizOutput.classList.add('loading');
+  
+  setTimeout(() => {
+    vizOutput.classList.remove('loading');
+    if (!mapInitialized) {
+      let output = `╔═══ MAP INTERFACE ACTIVATED ═══╗\n\n`;
+      output += `🗺️ BASE LAYERS:\n`;
+      output += `  ✓ Satellite imagery loaded\n`;
+      output += `  ✓ Terrain elevation data\n`;
+      output += `  ✓ Administrative boundaries\n\n`;
+      output += `📍 RESTORATION SITES:\n`;
+      output += `  • East Africa: 45 projects\n`;
+      output += `  • South Asia: 32 projects\n`;
+      output += `  • Latin America: 28 projects\n`;
+      output += `  • Total: 127,000 hectares\n\n`;
+      output += `📊 VISUALIZATION MODES:\n`;
+      output += `  [1] Planting density heatmap\n`;
+      output += `  [2] Species distribution\n`;
+      output += `  [3] Carbon sequestration\n`;
+      output += `  [4] Timeline animation\n\n`;
+      output += `[AI_NOTE: Implement with Leaflet.js + D3.js]`;
+      mapInitialized = true;
+      vizOutput.innerText = output;
+    } else {
+      vizOutput.innerText = "✓ Map initialized\nUse layer toggle for overlays";
+    }
+  }, 1500);
+}
+
+function toggleLayers() {
+  if (!mapInitialized) {
+    vizOutput.innerText = "⚠️ Please initialize map first";
+    return;
+  }
+  
+  layersVisible = !layersVisible;
+  
+  let output = `╔═══ DATA LAYERS ${layersVisible ? 'ENABLED' : 'DISABLED'} ═══╗\n\n`;
+  if (layersVisible) {
+    output += `✓ ACTIVE OVERLAYS:\n`;
+    output += `  🟢 NDVI vegetation index\n`;
+    output += `  🔵 Soil moisture levels\n`;
+    output += `  🟡 Drought risk zones\n`;
+    output += `  🔴 Priority areas\n\n`;
+    output += `📈 REAL-TIME FEEDS:\n`;
+    output += `  • NASA MODIS: 2hr ago\n`;
+    output += `  • ESA Sentinel: 6hr ago\n`;
+    output += `  • Weather: Live\n`;
+  } else {
+    output += `✗ Data layers hidden\n`;
+    output += `Click toggle to re-enable\n`;
+  }
+  output += `\n[AI_NOTE: WebGL rendering for performance]`;
+  vizOutput.innerText = output;
+}
+
+/* INITIALIZATION */
+window.addEventListener('DOMContentLoaded', () => {
+  const userLang = navigator.language.split('-')[0];
+  const langSelect = document.getElementById('langSelect');
+  if (langSelect.querySelector(`option[value="${userLang}"]`)) {
+    langSelect.value = userLang;
+  }
+  
+  console.log(`
+╔════════════════════════════════════════════════════════════╗
+║   GLOBAL FRUIT TREE RESTORATION AUTOPILOT v3.0            ║
+║   Multi-Theme AI-Expansion Architecture                    ║
+╚════════════════════════════════════════════════════════════╝
+
+🎨 THEMES AVAILABLE: Cyan, Forest, Ocean, Desert, Sunset
+🔧 EXPANSION PATHWAYS READY
+🎯 MISSION: Reverse ecosystem collapse
+🌍 SCOPE: Global deployment with local adaptation
+
+For contributions: Ricky Foster
+From humanity's past fire to future frost
+  `);
+});
+</script>
+
+</body>
+</html>
